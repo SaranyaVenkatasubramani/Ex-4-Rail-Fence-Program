@@ -26,7 +26,7 @@ STEP-5: Read the characters row wise or column wise in the former order to get t
 
 int main() {
     char text[100], enc[100], dec[100];
-    int rails, len, i, j, k, row, dir;
+    int rails, len, i, j;
 
     printf("Enter plaintext: ");
     scanf("%s", text);
@@ -36,51 +36,77 @@ int main() {
 
     len = strlen(text);
 
-    // Encryption
-    k = 0;
-    for(row = 0; row < rails; row++) {
-        dir = 1;
-        int r = 0;
-        for(i = 0; i < len; i++) {
-            if(r == row) enc[k++] = text[i];
-            if(r == 0) dir = 1;
-            else if(r == rails-1) dir = -1;
-            r += dir;
+    
+
+    char rail[rails][len];
+    for(i = 0; i < rails; i++)
+        for(j = 0; j < len; j++)
+            rail[i][j] = '\n';
+
+    int row = 0, dir = 1;
+    for(i = 0; i < len; i++) {
+        rail[row][i] = text[i];
+
+        if(row == 0)
+            dir = 1;
+        else if(row == rails - 1)
+            dir = -1;
+
+        row += dir;
+    }
+
+    int k = 0;
+    for(i = 0; i < rails; i++) {
+        for(j = 0; j < len; j++) {
+            if(rail[i][j] != '\n')
+                enc[k++] = rail[i][j];
         }
     }
     enc[k] = '\0';
+
     printf("Encrypted: %s\n", enc);
 
-    // Decryption
-    char temp[100];
-    int mark[100] = {0};
+    
 
-    // Mark positions
-    for(row = 0; row < rails; row++) {
-        dir = 1; int r = 0;
-        for(i = 0; i < len; i++) {
-            if(r == row) mark[i] = 1;
-            if(r == 0) dir = 1;
-            else if(r == rails-1) dir = -1;
-            r += dir;
-        }
+    // Step 1: Mark zigzag positions
+    for(i = 0; i < rails; i++)
+        for(j = 0; j < len; j++)
+            rail[i][j] = '\n';
+
+    row = 0; dir = 1;
+    for(i = 0; i < len; i++) {
+        rail[row][i] = '*';
+
+        if(row == 0)
+            dir = 1;
+        else if(row == rails - 1)
+            dir = -1;
+
+        row += dir;
     }
 
-    // Fill characters in order
+    // Step 2: Fill encrypted text row-wise
     k = 0;
     for(i = 0; i < rails; i++) {
         for(j = 0; j < len; j++) {
-            if(mark[j] == 1) {
-                temp[j] = enc[k++];
-                mark[j] = 0;
+            if(rail[i][j] == '*' && k < len) {
+                rail[i][j] = enc[k++];
             }
         }
     }
 
-    // Read zigzag
-    row = 0; dir = 1; k = 0;
+    // Step 3: Read zigzag to get plaintext
+    row = 0; dir = 1;
+    k = 0;
     for(i = 0; i < len; i++) {
-        dec[k++] = temp[i];
+        dec[k++] = rail[row][i];
+
+        if(row == 0)
+            dir = 1;
+        else if(row == rails - 1)
+            dir = -1;
+
+        row += dir;
     }
     dec[k] = '\0';
 
@@ -93,8 +119,7 @@ int main() {
 # OUTPUT
 
 
-<img width="390" height="228" alt="image" src="https://github.com/user-attachments/assets/352fb5d9-58d1-4f65-b958-22f3eec8d191" />
-
+<img width="368" height="225" alt="image" src="https://github.com/user-attachments/assets/29f40374-aef4-49f4-9380-f9d201d23261" />
 
 
 # RESULT
